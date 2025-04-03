@@ -1,7 +1,8 @@
-const express = require('express');
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
-const User = require('../models/User');
+import express from 'express';
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
+import User from '../models/User.js';
+
 
 const registerUser = async (req, res) => {
     try {
@@ -39,7 +40,7 @@ const registerUser = async (req, res) => {
         console.error('Error creating user:', error);
         res.status(500).json({ status: 500, message: "Internal server error" });
     }
-}
+};
 
 const login = async (req, res) => {
     try {
@@ -110,7 +111,7 @@ const login = async (req, res) => {
   };
   
 
-module.exports = {
+export default {
     registerUser,
     login
 };

@@ -1,7 +1,8 @@
-const express = require('express');
+import express from 'express';
+import userController  from '../controllers/userController.js';
+import authMiddleware from '../../middleware/auth.js';
+
 const router = express.Router();
-const { registerUser, login } = require('../controllers/userController');
-const authMiddleware = require('../../middleware/auth');
 
 const validateUserInput = (req, res, next) => {
     const { name, email, password, role_type } = req.body;
@@ -14,10 +15,10 @@ const validateUserInput = (req, res, next) => {
     next();
 };
 
-router.post('/login', login);
-router.post('/users/create', validateUserInput, registerUser);
+router.post('/login', userController.login);
+router.post('/users/create', validateUserInput, userController.registerUser);
 // router.get('/api/users/list', authMiddleware, listUser);
 // router.post('/api/users/:id', authMiddleware, updateUser);
 // router.delete('/api/users/delete/:id', authMiddleware, deleteUser);
 
-module.exports = router;
+export default router;
