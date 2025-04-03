@@ -13,9 +13,8 @@ export default app;
 // Start the server only if this file is run directly
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   const PORT = process.env.PORT || 3000;
-  sequelize.sync({ force: true }).then(() => {
-    app.listen(PORT, () => {
-      console.log(`Server running on port ${PORT}`);
-    });
+  await sequelize.sync();
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
   });
 }
