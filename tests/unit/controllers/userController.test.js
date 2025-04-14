@@ -76,3 +76,61 @@ describe("Login API", () => {
     });
   });
 });
+
+// describe('GET /api/users/list', () => {
+  // beforeAll(async () => {
+  //   await sequelize.sync({ force: true });
+  // });
+
+  // afterEach(async () => {
+  //   await User.destroy({ truncate: true });
+  // });
+
+  // afterAll(async () => {
+  //   await sequelize.close();
+  // });
+
+//   describe('when database has users', () => {
+//     beforeEach(async () => {
+//       await User.bulkCreate([
+//         { name: 'User1', email: 'user_one@gmail.com' },
+//         { name: 'User2', email: 'user_two@gmail.com' }
+//       ]);
+//     });
+
+//     test('should return 200 status with users array', async () => {
+//       const response = await request(app)
+//         .get('/api/users/list')
+//         .expect(200);
+
+//       // More flexible assertion
+//       expect(response.body.status).toBe(200);
+//       expect(response.body.message).toBe('Users listed successfully');
+//       expect(Array.isArray(response.body.result)).toBe(true);
+//       expect(response.body.result.length).toBe(2);
+      
+//       // Verify first user structure without exact values
+//       expect(response.body.result[0]).toEqual({
+//         id: expect.any(Number),
+//         name: expect.any(String),
+//         email: expect.any(String),
+//         created_at: expect.any(String),
+//         updated_at: expect.any(String)
+//       });
+//     });
+//   });
+
+//   describe('when database is empty', () => {
+//     test('should return 200 status with empty array', async () => {
+//       const response = await request(app)
+//         .get('/api/users/list')
+//         .expect(200);
+
+//       expect(response.body).toEqual({
+//         status: 200,
+//         message: 'No users found',
+//         result: []
+//       });
+//     });
+//   });
+// });

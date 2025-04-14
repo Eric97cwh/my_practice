@@ -109,9 +109,39 @@ const login = async (req, res) => {
       });
     }
   };
+
+  const listUser = async (req, res) => {
+    try {
+      const users = await User.findAll({
+        attributes: ['id', 'name', 'email', 'created_at', 'updated_at'],
+        order: [['id', 'ASC']]
+      });
+      
+      if (users.length === 0) {
+        return res.status(200).json({
+          status: 200,
+          message: 'No users found',
+          result: []
+        });
+      }
+  
+      res.status(200).json({
+        status: 200,
+        message: 'Users listed successfully',
+        result: users
+      });
+    } catch (error) {
+      console.error("Error while retrieving data:", error);
+      res.status(500).json({
+        status: 500,
+        message: "Error while retrieving data"
+      });
+    }
+  };
   
 
 export default {
     registerUser,
-    login
+    login,
+    listUser
 };

@@ -17,7 +17,7 @@ const validateUserInput = (req, res, next) => {
 
 router.post('/login', userController.login);
 router.post('/users/create', validateUserInput, userController.registerUser);
-// router.get('/api/users/list', authMiddleware, listUser);
+router.get('/users/list', userController.listUser);
 // router.post('/api/users/:id', authMiddleware, updateUser);
 // router.delete('/api/users/delete/:id', authMiddleware, deleteUser);
 

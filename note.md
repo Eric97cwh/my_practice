@@ -261,3 +261,178 @@ IAM - IAM allows you to manage access to AWS services and resources securely. Cr
 Cloudwatch - Monitoring application performance, setting alarms, and logging.
 Elastic Beanstalk - Elastic Beanstalk is a fully managed service for deploying and scaling web applications. Deploying Node.js, Python, Java, etc., applications without managing infrastructure.
 
+========
+MySQL
+========
+1. Core MySQL Concepts
+-- Create
+INSERT INTO users (name, email) VALUES ('John', 'john@example.com');
+
+-- Read
+SELECT * FROM users WHERE id = 1;
+SELECT name, email FROM users ORDER BY created_at DESC LIMIT 10;
+
+-- Update
+UPDATE users SET name = 'Jane' WHERE id = 1;
+
+-- Delete
+DELETE FROM users WHERE id = 1;
+
+2. Database Design & Optimization
+-- Index (speed up queries)
+CREATE INDEX idx_email ON users(email);  -- Single-column
+CREATE INDEX idx_name_age ON users(name, age);  -- Composite index
+
+EXPLAIN SELECT * FROM users WHERE email = 'test@example.com';
+
+Normalization (Avoid Data Duplication)
+Form	Rule
+1NF	No repeating groups (e.g., store orders in a separate table).
+2NF	All non-key columns depend on the entire primary key.
+3NF	No transitive dependencies (e.g., user_age shouldn’t depend on user_birthdate).
+
+3. Advanced MySQL Topics
+Transactions (ACID Compliance)
+START TRANSACTION;
+  UPDATE accounts SET balance = balance - 100 WHERE user_id = 1;
+  UPDATE accounts SET balance = balance + 100 WHERE user_id = 2;
+COMMIT;  -- Or ROLLBACK on error
+
+Isolation Levels:
+READ UNCOMMITTED (dirty reads) → SERIALIZABLE (strictest).
+Default in MySQL: REPEATABLE READ.
+
+Stored Procedures (Interview Question Favorite)
+DELIMITER //
+CREATE PROCEDURE GetUserOrders(IN userId INT)
+BEGIN
+  SELECT * FROM orders WHERE user_id = userId;
+END //
+DELIMITER ;
+-- Call it
+CALL GetUserOrders(1);
+
+Common Table Expressions (CTEs)
+WITH active_users AS (
+  SELECT * FROM users WHERE last_login > NOW() - INTERVAL 30 DAY
+)
+SELECT * FROM active_users WHERE age > 18;
+
+4. Performance Tuning
+Slow Query Fixes
+Add Missing Indexes (Check with EXPLAIN).
+
+Avoid SELECT * → Fetch only needed columns.
+
+Optimize Joins → Ensure joined columns are indexed.
+
+Use LIMIT for pagination.
+
+Connection Pooling
+Why? Reusing DB connections improves performance.
+
+Tools: mysql2 (Node.js), HikariCP (Java).
+
+5. Real-World Scenarios (Interview Questions)
+How do you backup a MySQL database?
+mysqldump -u [user] -p[database] > backup.sql
+
+How to find duplicate emails in a table?
+SELECT email, COUNT(*) FROM users GROUP BY email HAVING COUNT(*) > 1;
+
+How to optimize a table with millions of rows?
+Partitioning, indexing, archiving old data.
+
+6. Tools & Commands
+Command/Tool	      Purpose
+SHOW TABLES;	      List all tables
+DESCRIBE users;	    Show table structure
+mysqldump	          Backup database
+pt-query-digest	    Analyze slow queries (Percona Toolkit)
+
+==============================
+Slow Query
+
+EXPLAIN SELECT * FROM orders WHERE user_id = 5 ORDER BY created_at DESC;
+Bad Output:
+
+type: ALL (full table scan)
+
+key: NULL (no index used)
+
+Extra: Using filesort (slow sorting)
+================================
+Optimized Query
+
+Add an index:
+CREATE INDEX idx_user_created ON orders(user_id, created_at);
+
+Re-run EXPLAIN:
+type: ref (index lookup)
+key: idx_user_created
+Extra: Using index (no filesort)
+
+===================================
+Paging Example
+===================================
+const getListingsWithDistance = async (req, res) => {
+    try {
+        const { latitude, longitude, page = 1, limit = 10 } = req.query;
+        
+        if (!latitude || !longitude) {
+            return res.status(400).json({ status: 400, message: "Latitude and Longitude are required" });
+        }
+        
+        const userId = req.user.userId;
+
+        const pageNumber = parseInt(page);
+        const pageSize = parseInt(limit);
+        
+        const offset = (pageNumber - 1) * pageSize;
+
+        const { count, rows } = await Listing.findAndCountAll({
+            where: { user_id: userId },
+            limit: pageSize,
+            offset: offset,
+            order: [['created_at', 'DESC']]
+        });
+
+        const totalPages = Math.ceil(count / pageSize);
+
+        const listingsWithDistance = rows.map(listing => {
+            const distance = calculateDistance(
+                parseFloat(latitude), 
+                parseFloat(longitude), 
+                listing.latitude, 
+                listing.longitude
+            );
+            
+            return {
+                id: listing.id,
+                name: listing.name,
+                distance: distance.toFixed(2),
+                created_at: listing.created_at,
+                updated_at: listing.updated_at
+            };
+        });
+
+        res.status(200).json({
+            status: 200,
+            message: "Listings retrieved successfully",
+            result: {
+                current_page: pageNumber,
+                last_page: totalPages,
+                total: count,
+                data: listingsWithDistance
+            }
+        });
+    } catch (error) {
+        console.error('Error fetching listings:', error);
+        res.status(500).json({ status: 500, message: "Internal server error" });
+    }
+};
+
+
+
+
+
